@@ -1,2 +1,2 @@
-# HousePrice_Project
-Prediction of house prices with a web app
+# HOUSEPRICE_PROJECT_ESSEN_23CG034071
+Prediction of House Prices using a Web App
