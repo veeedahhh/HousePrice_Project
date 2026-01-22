@@ -3,8 +3,12 @@ import pandas as pd
 import numpy as np
 import joblib
 
-# Load trained model
-model = joblib.load("house_price_model.pkl")
+# Load model
+try:
+    model = joblib.load("model/house_price_model.pkl")  # adjust if needed
+    st.write("✅ Model loaded successfully!")
+except Exception as e:
+    st.error(f"Failed to load model: {e}")
 
 # Streamlit UI
 st.title("🏠 House Price Prediction System")
@@ -20,15 +24,28 @@ YearBuilt = st.number_input("Year Built", min_value=1800, max_value=2026, value=
 
 # Create input dataframe
 input_data = pd.DataFrame({
-    'OverallQual': [OverallQual],
-    'GrLivArea': [GrLivArea],
-    'TotalBsmtSF': [TotalBsmtSF],
-    'GarageCars': [GarageCars],
-    'FullBath': [FullBath],
-    'YearBuilt': [YearBuilt]
+    'OverallQual': [int(OverallQual)],
+    'GrLivArea': [float(GrLivArea)],
+    'TotalBsmtSF': [float(TotalBsmtSF)],
+    'GarageCars': [int(GarageCars)],
+    'FullBath': [int(FullBath)],
+    'YearBuilt': [int(YearBuilt)]
 })
 
-# Prediction button
+# Ensure correct column order
+input_data = input_data[['OverallQual', 'GrLivArea', 'TotalBsmtSF', 'GarageCars', 'FullBath', 'YearBuilt']]
+
+# Convert types
+input_data = input_data.astype(float)
+
+# Show input data (for debugging)
+st.write("Input Data:")
+st.dataframe(input_data)
+
+# Prediction
 if st.button("Predict House Price"):
-    prediction = model.predict(input_data)[0]
-    st.success(f"Estimated House Price: ${prediction:,.2f}")
+    try:
+        prediction = model.predict(input_data)[0]
+        st.success(f"🏡 Estimated House Price: ${prediction:,.2f}")
+    except Exception as e:
+        st.error(f"Error during prediction: {e}")
