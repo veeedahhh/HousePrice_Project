@@ -2,5 +2,5 @@ Name: Davida Essen
 Matric Number: 23CG034071
 Machine Learning Algorithm Used: Random Forest Regressor
 Model Persistence Method Used: Joblib
-Live URL: 
-GitHub Repository Link: 
+Live URL: https://housepriceproject.streamlit.app/
+GitHub Repository Link: https://github.com/veeedahhh/HousePrice_Project
