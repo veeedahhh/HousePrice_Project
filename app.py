@@ -1,45 +1,34 @@
-from flask import Flask, render_template, request
-import numpy as np
+import streamlit as st
 import pandas as pd
+import numpy as np
 import joblib
 
-app = Flask(__name__)
+# Load trained model
+model = joblib.load("house_price_model.pkl")
 
-# Load model
-import os
-import joblib
+# Streamlit UI
+st.title("🏠 House Price Prediction System")
+st.write("Predict house prices based on selected features.")
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "model", "house_price_model.pkl")
+# User inputs
+OverallQual = st.slider("Overall Quality (1-10)", 1, 10, 5)
+GrLivArea = st.number_input("Above Ground Living Area (sq ft)", min_value=300, max_value=10000, value=1500)
+TotalBsmtSF = st.number_input("Total Basement Area (sq ft)", min_value=0, max_value=5000, value=800)
+GarageCars = st.slider("Number of Garage Cars", 0, 5, 1)
+FullBath = st.slider("Number of Full Bathrooms", 0, 5, 1)
+YearBuilt = st.number_input("Year Built", min_value=1800, max_value=2026, value=2000)
 
-model_data = joblib.load(MODEL_PATH)
+# Create input dataframe
+input_data = pd.DataFrame({
+    'OverallQual': [OverallQual],
+    'GrLivArea': [GrLivArea],
+    'TotalBsmtSF': [TotalBsmtSF],
+    'GarageCars': [GarageCars],
+    'FullBath': [FullBath],
+    'YearBuilt': [YearBuilt]
+})
 
-model = model_data["model"]
-scaler = model_data["scaler"]
-columns = model_data["columns"]
-
-@app.route("/", methods=["GET", "POST"])
-def index():
-    prediction = None
-
-    if request.method == "POST":
-        input_data = {
-            "OverallQual": int(request.form["OverallQual"]),
-            "GrLivArea": float(request.form["GrLivArea"]),
-            "TotalBsmtSF": float(request.form["TotalBsmtSF"]),
-            "GarageCars": int(request.form["GarageCars"]),
-            "YearBuilt": int(request.form["YearBuilt"]),
-            "Neighborhood": request.form["Neighborhood"]
-        }
-
-        df = pd.DataFrame([input_data])
-        df_encoded = pd.get_dummies(df)
-        df_encoded = df_encoded.reindex(columns=columns, fill_value=0)
-
-        df_scaled = scaler.transform(df_encoded)
-        prediction = model.predict(df_scaled)[0]
-
-    return render_template("index.html", prediction=prediction)
-
-if __name__ == "__main__":
-    app.run(debug=True)
+# Prediction button
+if st.button("Predict House Price"):
+    prediction = model.predict(input_data)[0]
+    st.success(f"Estimated House Price: ${prediction:,.2f}")
